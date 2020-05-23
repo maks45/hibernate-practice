@@ -7,6 +7,7 @@ import javax.persistence.criteria.Root;
 import model.Author;
 import model.Book;
 import model.Genre;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -43,7 +44,9 @@ public class BookDaoImpl implements BookDao {
             CriteriaQuery<Book> query = criteriaBuilder.createQuery(Book.class);
             Root<Book> root = query.from(Book.class);
             query.select(root).where(criteriaBuilder.equal(root.get("title"), book.getTitle()));
-            return session.createQuery(query).getSingleResult();
+            Book book1 = session.createQuery(query).getSingleResult();
+            Hibernate.initialize(book1.getAuthors());
+            return book1;
         } catch (HibernateException e) {
             throw new RuntimeException("can't find book", e);
         }
@@ -57,7 +60,11 @@ public class BookDaoImpl implements BookDao {
             Root<Book> root = query.from(Book.class);
             query.select(root).where(criteriaBuilder.isMember(author,
                     root.get("authors")));
-            return session.createQuery(query).getResultList();
+            List<Book> books = session.createQuery(query).getResultList();
+            for (Book book: books) {
+                Hibernate.initialize(book.getAuthors());
+            }
+            return books;
         } catch (HibernateException e) {
             throw new RuntimeException("can't find book by author ", e);
         }
@@ -70,7 +77,11 @@ public class BookDaoImpl implements BookDao {
             CriteriaQuery<Book> query = criteriaBuilder.createQuery(Book.class);
             Root<Book> root = query.from(Book.class);
             query.select(root).where(criteriaBuilder.equal(root.get("genre"), genre));
-            return session.createQuery(query).getResultList();
+            List<Book> books = session.createQuery(query).getResultList();
+            for (Book book: books) {
+                Hibernate.initialize(book.getAuthors());
+            }
+            return books;
         } catch (HibernateException e) {
             throw new RuntimeException("can't find books by genre ", e);
         }

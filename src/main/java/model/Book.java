@@ -22,7 +22,7 @@ public class Book {
     @OneToOne
     @Cascade(CascadeType.ALL)
     private Genre genre;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany
     @Cascade(CascadeType.ALL)
     private List<Author> authors;
 
